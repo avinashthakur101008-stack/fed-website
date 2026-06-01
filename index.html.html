@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FED — Federation of Entrepreneurship Development</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── THEME TOKENS ── */
+[data-theme="dark"] {
+  --bg:           #0A0F2E;
+  --bg-mid:       #111836;
+  --bg-light:     #1C2547;
+  --text:         #F8F5EE;
+  --muted:        rgba(248,245,238,0.55);
+  --border:       rgba(245,200,66,0.18);
+  --gold:         #F5C842;
+  --gold-light:   #FFE07A;
+  --gold-dim:     rgba(245,200,66,0.12);
+  --accent:       #E8533A;
+  --card-bg:      #1C2547;
+  --nav-bg:       rgba(10,15,46,0.88);
+  --input-bg:     #1C2547;
+  --shadow:       rgba(0,0,0,0.45);
+}
+[data-theme="light"] {
+  --bg:           #F5F3EE;
+  --bg-mid:       #EAE6DD;
+  --bg-light:     #FFFFFF;
+  --text:         #0A0F2E;
+  --muted:        rgba(10,15,46,0.55);
+  --border:       rgba(10,15,46,0.15);
+  --gold:         #B8870A;
+  --gold-light:   #D4A020;
+  --gold-dim:     rgba(184,135,10,0.1);
+  --accent:       #C73E28;
+  --card-bg:      #FFFFFF;
+  --nav-bg:       rgba(245,243,238,0.92);
+  --input-bg:     #F5F3EE;
+  --shadow:       rgba(10,15,46,0.12);
+}
+
+:root {
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', sans-serif;
+  --font-mono:    'Space Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  line-height: 1.6;
+  transition: background 0.4s, color 0.4s;
+}
+
+/* ── THEME TOGGLE ── */
+.theme-toggle {
+  position: fixed; bottom: 2rem; right: 2rem; z-index: 200;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--gold); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; box-shadow: 0 4px 20px var(--shadow);
+  transition: transform 0.2s, background 0.3s;
+}
+.theme-toggle:hover { transform: scale(1.1) rotate(20deg); }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.1rem 5vw;
+  background: var(--nav-bg);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.3s;
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--text);
+}
+.nav-logo-mark {
+  width: 38px; height: 38px; border-radius: 8px;
+  background: var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 900; font-size: 18px; color: var(--bg);
+  letter-spacing: -1px;
+}
+.nav-logo-text { font-family: var(--font-display); font-size: 1.15rem; font-weight: 700; letter-spacing: 0.02em; }
+.nav-logo-sub { font-size: 0.6rem; font-weight: 400; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; display: block; line-height: 1; }
+
+.nav-links { display: flex; align-items: center; gap: 2.2rem; list-style: none; }
+.nav-links a {
+  text-decoration: none; color: var(--muted);
+  font-size: 0.85rem; font-weight: 500; letter-spacing: 0.04em;
+  text-transform: uppercase; transition: color 0.2s;
+  position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -3px; left: 0; right: 0;
+  height: 1px; background: var(--gold); transform: scaleX(0);
+  transition: transform 0.2s; transform-origin: left;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-links a:hover::after { transform: scaleX(1); }
+
+.nav-cta {
+  padding: 0.55rem 1.4rem;
+  background: var(--gold) !important; color: var(--bg) !important;
+  border-radius: 6px; font-weight: 600 !important;
+  text-transform: none !important; letter-spacing: 0.01em !important;
+  transition: background 0.2s, transform 0.15s !important;
+}
+.nav-cta:hover { background: var(--gold-light) !important; transform: translateY(-1px); }
+.nav-cta::after { display: none !important; }
+
+.hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; border: none; background: none; padding: 4px; }
+.hamburger span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: 0.3s; }
+
+/* ── HERO ── */
+#hero {
+  min-height: 100vh;
+  display: grid; grid-template-columns: 1fr 1fr; align-items: center;
+  padding: 6rem 5vw 4rem;
+  position: relative; overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background: radial-gradient(ellipse 80% 70% at 70% 50%, var(--bg-light) 0%, var(--bg) 70%);
+  transition: background 0.4s;
+}
+.hero-grid {
+  position: absolute; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
+}
+
+.hero-content { position: relative; z-index: 1; }
+
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--gold);
+  border: 1px solid var(--border); border-radius: 100px;
+  padding: 0.35rem 1rem; margin-bottom: 1.8rem;
+  animation: fadeSlideUp 0.8s ease 0.1s both;
+}
+.hero-tag-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: pulse 2s infinite; }
+
+.hero-h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 5vw, 4.4rem);
+  font-weight: 900; line-height: 1.08; letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  animation: fadeSlideUp 0.8s ease 0.2s both;
+}
+.hero-h1 em { font-style: normal; color: var(--gold); }
+
+.hero-sub {
+  font-size: 1.05rem; color: var(--muted); line-height: 1.7;
+  max-width: 460px; margin-bottom: 2.5rem;
+  animation: fadeSlideUp 0.8s ease 0.3s both;
+  font-weight: 300;
+}
+
+.hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; animation: fadeSlideUp 0.8s ease 0.4s both; }
+
+.btn-primary {
+  padding: 0.85rem 2.2rem;
+  background: var(--gold); color: var(--bg);
+  font-weight: 700; font-size: 0.9rem; border-radius: 8px;
+  text-decoration: none; letter-spacing: 0.02em;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--gold-dim); }
+
+.btn-secondary {
+  padding: 0.85rem 2.2rem;
+  background: transparent; color: var(--text);
+  font-weight: 500; font-size: 0.9rem; border-radius: 8px;
+  text-decoration: none; letter-spacing: 0.02em;
+  border: 1px solid var(--border);
+  transition: border-color 0.2s, background 0.2s;
+}
+.btn-secondary:hover { border-color: var(--text); background: var(--gold-dim); }
+
+/* Hero visual / emblem */
+.hero-visual {
+  position: relative; z-index: 1; display: flex; justify-content: center;
+  animation: fadeSlideUp 0.9s ease 0.35s both;
+}
+.hero-emblem {
+  width: clamp(280px, 35vw, 480px); aspect-ratio: 1;
+  position: relative; display: flex; align-items: center; justify-content: center;
+}
+.emblem-ring {
+  position: absolute; border-radius: 50%;
+  border: 1px solid var(--border);
+}
+.emblem-ring:nth-child(1) { inset: 0; animation: spinSlow 20s linear infinite; }
+.emblem-ring:nth-child(2) { inset: 12%; animation: spinSlow 30s linear infinite reverse; }
+.emblem-ring:nth-child(3) { inset: 24%; border-style: dashed; }
+.emblem-center {
+  width: 52%; aspect-ratio: 1; border-radius: 50%;
+  background: var(--gold-dim); border: 2px solid var(--gold);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; position: relative; z-index: 2;
+}
+.emblem-big { font-family: var(--font-display); font-size: clamp(2rem,4vw,3.5rem); font-weight: 900; color: var(--gold); line-height: 1; }
+.emblem-label { font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; }
+
+.stat-chip {
+  position: absolute; background: var(--card-bg);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 0.6rem 1rem; text-align: center; z-index: 3;
+  box-shadow: 0 4px 20px var(--shadow);
+}
+.stat-chip .num { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--gold); line-height: 1; }
+.stat-chip .lbl { font-size: 0.62rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px; }
+.chip-a { top: 8%; right: 2%; }
+.chip-b { bottom: 18%; left: 0%; }
+.chip-c { top: 42%; right: -2%; }
+
+/* ── STATS BAR ── */
+.stats-bar {
+  background: var(--bg-light);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: center; flex-wrap: wrap;
+  padding: 2.5rem 5vw; gap: 0;
+  transition: background 0.4s;
+}
+.stat-item { flex: 1; min-width: 160px; text-align: center; padding: 0.8rem 2rem; border-right: 1px solid var(--border); }
+.stat-item:last-child { border-right: none; }
+.stat-num { font-family: var(--font-display); font-size: 2.4rem; font-weight: 900; color: var(--gold); line-height: 1; }
+.stat-label { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; }
+
+/* ── SECTIONS COMMON ── */
+section { padding: 6rem 5vw; }
+.section-tag { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.8rem; }
+.section-h2 { font-family: var(--font-display); font-size: clamp(2rem,3.5vw,3rem); font-weight: 700; line-height: 1.15; margin-bottom: 1.2rem; }
+.section-sub { font-size: 1rem; color: var(--muted); max-width: 540px; line-height: 1.7; font-weight: 300; }
+
+/* ── ABOUT ── */
+#about { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; background: var(--bg); transition: background 0.4s; }
+.about-cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.about-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 16px; padding: 2rem; position: relative; overflow: hidden;
+  transition: background 0.4s, transform 0.25s;
+}
+.about-card:hover { transform: translateY(-3px); }
+.about-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--gold), var(--accent));
+}
+.about-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+.about-card h4 { font-weight: 600; margin-bottom: 0.4rem; font-size: 0.95rem; }
+.about-card p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+.about-text .section-sub { margin-bottom: 2rem; max-width: none; }
+.pillars { display: flex; flex-direction: column; gap: 1rem; }
+.pillar { display: flex; gap: 1rem; align-items: flex-start; }
+.pillar-num {
+  font-family: var(--font-mono); font-size: 0.7rem; color: var(--gold);
+  background: var(--gold-dim); border: 1px solid var(--border);
+  border-radius: 6px; padding: 0.2rem 0.5rem; white-space: nowrap; margin-top: 2px; flex-shrink: 0;
+}
+.pillar-text h5 { font-weight: 600; margin-bottom: 0.2rem; font-size: 0.92rem; }
+.pillar-text p { font-size: 0.82rem; color: var(--muted); }
+
+/* ── EVENTS ── */
+#events { background: var(--bg-mid); transition: background 0.4s; }
+.events-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; flex-wrap: wrap; gap: 1rem; }
+.events-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
+
+.event-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+  transition: transform 0.25s, box-shadow 0.25s, background 0.4s;
+  cursor: pointer;
+}
+.event-card:hover { transform: translateY(-6px); box-shadow: 0 20px 50px var(--shadow); }
+
+.event-thumb { height: 160px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.event-thumb-1 { background: linear-gradient(135deg,#1a3a6b,#0d1f40); }
+.event-thumb-2 { background: linear-gradient(135deg,#3a1a0a,#1a0d05); }
+.event-thumb-3 { background: linear-gradient(135deg,#1a3320,#0d1a10); }
+.event-thumb-icon { font-size: 3.5rem; opacity: 0.6; position: absolute; right: 1.5rem; bottom: 1rem; }
+.event-badge {
+  position: absolute; top: 1rem; left: 1rem;
+  background: var(--gold); color: var(--bg);
+  font-family: var(--font-mono); font-size: 0.65rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0.25rem 0.7rem; border-radius: 100px; font-weight: 700;
+}
+
+.event-body { padding: 1.5rem; }
+.event-date { font-family: var(--font-mono); font-size: 0.68rem; color: var(--gold); letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+.event-title { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.6rem; line-height: 1.3; }
+.event-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.6; margin-bottom: 1rem; }
+.event-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.8rem; color: var(--gold); text-decoration: none;
+  font-weight: 600; letter-spacing: 0.03em; transition: gap 0.2s;
+}
+.event-link:hover { gap: 10px; }
+
+/* ── PROGRAMS ── */
+#programs { background: var(--bg); transition: background 0.4s; }
+.programs-head { text-align: center; margin-bottom: 4rem; }
+.programs-head .section-sub { margin: 0 auto; }
+.programs-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.5rem; }
+
+.program-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 14px; padding: 2rem 1.5rem; text-align: center;
+  transition: transform 0.25s, border-color 0.25s, background 0.4s;
+  position: relative; overflow: hidden;
+}
+.program-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 3px; background: var(--gold);
+  transform: scaleX(0); transition: transform 0.3s; transform-origin: center;
+}
+.program-card:hover { transform: translateY(-4px); border-color: var(--gold); }
+.program-card:hover::after { transform: scaleX(1); }
+.program-icon { font-size: 2.8rem; margin-bottom: 1.2rem; display: block; }
+.program-card h3 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 700; margin-bottom: 0.6rem; }
+.program-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+
+/* ── TESTIMONIALS ── */
+#testimonials { background: var(--bg-mid); transition: background 0.4s; }
+.testimonials-head { text-align: center; margin-bottom: 3.5rem; }
+.testimonials-head .section-sub { margin: 0 auto; }
+.testimonials-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
+
+.testimonial-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 14px; padding: 2rem;
+  transition: background 0.4s, transform 0.25s;
+}
+.testimonial-card:hover { transform: translateY(-3px); }
+.quote-mark { font-family: var(--font-display); font-size: 4rem; color: var(--gold); line-height: 0.5; opacity: 0.4; margin-bottom: 1rem; }
+.testimonial-text { font-size: 0.88rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; font-style: italic; font-weight: 300; }
+.testimonial-author { display: flex; align-items: center; gap: 10px; }
+.author-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.8rem; color: var(--bg);
+  background: var(--gold); flex-shrink: 0;
+}
+.author-name { font-size: 0.88rem; font-weight: 600; }
+.author-role { font-size: 0.73rem; color: var(--muted); }
+
+/* ── CONTACT ── */
+#contact { background: var(--bg); transition: background 0.4s; }
+.contact-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+.contact-info .section-sub { margin-bottom: 2.5rem; }
+.contact-channels { display: flex; flex-direction: column; gap: 1rem; }
+.channel {
+  display: flex; align-items: center; gap: 1rem;
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1rem 1.2rem;
+  transition: background 0.4s, border-color 0.2s;
+}
+.channel:hover { border-color: var(--gold); }
+.channel-icon { font-size: 1.4rem; width: 36px; text-align: center; }
+.channel-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 2px; }
+.channel-value { font-size: 0.88rem; font-weight: 500; }
+
+.contact-form { display: flex; flex-direction: column; gap: 1rem; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; font-family: var(--font-mono); }
+.form-group input,
+.form-group textarea,
+.form-group select {
+  background: var(--input-bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.8rem 1rem;
+  color: var(--text); font-family: var(--font-body); font-size: 0.9rem;
+  outline: none; transition: border-color 0.2s, background 0.4s;
+  width: 100%;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus { border-color: var(--gold); }
+.form-group textarea { resize: vertical; min-height: 110px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+.btn-submit {
+  padding: 0.9rem 2rem;
+  background: var(--gold); color: var(--bg);
+  font-weight: 700; font-size: 0.9rem; border-radius: 8px;
+  border: none; cursor: pointer; letter-spacing: 0.03em;
+  transition: transform 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+.btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 30px var(--gold-dim); }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--bg-mid);
+  border-top: 1px solid var(--border);
+  padding: 3.5rem 5vw 2rem;
+  transition: background 0.4s;
+}
+.footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+.footer-brand p { font-size: 0.82rem; color: var(--muted); line-height: 1.7; margin: 1rem 0 1.5rem; max-width: 280px; font-weight: 300; }
+.social-links { display: flex; gap: 0.75rem; }
+.social-link {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: var(--card-bg); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; text-decoration: none; color: var(--muted);
+  transition: border-color 0.2s, color 0.2s;
+}
+.social-link:hover { border-color: var(--gold); color: var(--gold); }
+.footer-col h5 { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1.2rem; color: var(--gold); font-family: var(--font-mono); }
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
+.footer-col ul a { text-decoration: none; color: var(--muted); font-size: 0.84rem; transition: color 0.2s; }
+.footer-col ul a:hover { color: var(--text); }
+.footer-bottom { border-top: 1px solid var(--border); padding-top: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.footer-bottom p { font-size: 0.78rem; color: var(--muted); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeSlideUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.85);} }
+@keyframes spinSlow { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+
+.reveal { opacity:0; transform:translateY(28px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity:1; transform:none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .events-grid { grid-template-columns: repeat(2,1fr); }
+  .programs-grid { grid-template-columns: repeat(2,1fr); }
+  .testimonials-grid { grid-template-columns: repeat(2,1fr); }
+  .footer-top { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  #hero { grid-template-columns: 1fr; padding: 7rem 5vw 3rem; text-align: center; }
+  .hero-sub { margin: 0 auto 2rem; }
+  .hero-actions { justify-content: center; }
+  .hero-visual { display: none; }
+  #about { grid-template-columns: 1fr; gap: 3rem; }
+  .about-visual { order: -1; }
+  .about-cards-grid { grid-template-columns: repeat(2,1fr); }
+  .events-grid { grid-template-columns: 1fr; }
+  .programs-grid { grid-template-columns: repeat(2,1fr); }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .contact-wrap { grid-template-columns: 1fr; gap: 3rem; }
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .stat-item { min-width: 120px; }
+  .form-row { grid-template-columns: 1fr; }
+  nav { padding: 1rem 5vw; }
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+  .nav-links.open {
+    display: flex; flex-direction: column;
+    position: fixed; top: 64px; left: 0; right: 0; bottom: 0;
+    background: var(--bg-mid); padding: 2rem 5vw;
+    gap: 1.5rem; align-items: flex-start;
+    border-top: 1px solid var(--border);
+  }
+  .nav-links.open a { font-size: 1.1rem; }
+}
+@media (max-width: 480px) {
+  .programs-grid { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr; }
+  .about-cards-grid { grid-template-columns: 1fr; }
+  .stats-bar { flex-direction: column; align-items: center; }
+  .stat-item { border-right: none; border-bottom: 1px solid var(--border); width: 100%; }
+  .stat-item:last-child { border-bottom: none; }
+  .events-head { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- DARK/LIGHT MODE TOGGLE (BONUS) -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode" title="Toggle dark / light mode">🌙</button>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-mark">FED</div>
+    <div>
+      <span class="nav-logo-text">FED</span>
+      <span class="nav-logo-sub">Entrepreneurship Development</span>
+    </div>
+  </a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#about">About</a></li>
+    <li><a href="#events">Events</a></li>
+    <li><a href="#programs">Programs</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#contact" class="nav-cta">Apply Now</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-tag">
+      <span class="hero-tag-dot"></span>
+      Federation of Entrepreneurship Development
+    </div>
+    <h1 class="hero-h1">
+      Build the<br>
+      <em>Future</em><br>
+      You Imagine.
+    </h1>
+    <p class="hero-sub">
+      FED is the launchpad for student entrepreneurs — connecting ideas with mentors, programs, and a community that turns vision into reality.
+    </p>
+    <div class="hero-actions">
+      <a href="#programs" class="btn-primary">Explore Programs →</a>
+      <a href="#about" class="btn-secondary">Our Story</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-emblem">
+      <div class="emblem-ring"></div>
+      <div class="emblem-ring"></div>
+      <div class="emblem-ring"></div>
+      <div class="emblem-center">
+        <span class="emblem-big">FED</span>
+        <span class="emblem-label">Est. 2018 · KIIT</span>
+      </div>
+      <div class="stat-chip chip-a"><div class="num">500+</div><div class="lbl">Members</div></div>
+      <div class="stat-chip chip-b"><div class="num">₹2Cr+</div><div class="lbl">Funding Raised</div></div>
+      <div class="stat-chip chip-c"><div class="num">40+</div><div class="lbl">Startups</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar reveal">
+  <div class="stat-item"><div class="stat-num">500+</div><div class="stat-label">Active Members</div></div>
+  <div class="stat-item"><div class="stat-num">40+</div><div class="stat-label">Startups Incubated</div></div>
+  <div class="stat-item"><div class="stat-num">60+</div><div class="stat-label">Events Organized</div></div>
+  <div class="stat-item"><div class="stat-num">100+</div><div class="stat-label">Industry Mentors</div></div>
+  <div class="stat-item"><div class="stat-num">₹2Cr+</div><div class="stat-label">Funding Facilitated</div></div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-visual reveal">
+    <div class="about-cards-grid">
+      <div class="about-card">
+        <div class="about-icon">🚀</div>
+        <h4>Launch Ready</h4>
+        <p>End-to-end support from idea to market, with expert mentors guiding every step.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-icon">🤝</div>
+        <h4>Community First</h4>
+        <p>A vibrant network of founders, mentors, and investors united by one goal.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-icon">💡</div>
+        <h4>Ideas That Matter</h4>
+        <p>We back bold thinking — from social impact ventures to deep-tech innovations.</p>
+      </div>
+      <div class="about-card">
+        <div class="about-icon">🏆</div>
+        <h4>Award Winning</h4>
+        <p>Recognized as a top student entrepreneurship body at KIIT University.</p>
+      </div>
+    </div>
+  </div>
+  <div class="about-text reveal">
+    <div class="section-tag">// Who We Are</div>
+    <h2 class="section-h2">More than a club —<br>a startup ecosystem.</h2>
+    <p class="section-sub">
+      The Federation of Entrepreneurship Development (FED) was founded to bridge the gap between academic learning and real-world startup building. We nurture, accelerate, and celebrate the next generation of entrepreneurs.
+    </p>
+    <div class="pillars">
+      <div class="pillar">
+        <span class="pillar-num">01</span>
+        <div class="pillar-text">
+          <h5>Mentorship &amp; Networking</h5>
+          <p>Direct access to 100+ industry experts, founders, and investors from leading organizations.</p>
+        </div>
+      </div>
+      <div class="pillar">
+        <span class="pillar-num">02</span>
+        <div class="pillar-text">
+          <h5>Incubation &amp; Funding</h5>
+          <p>Structured programs to take your idea from whiteboard to market with seed support.</p>
+        </div>
+      </div>
+      <div class="pillar">
+        <span class="pillar-num">03</span>
+        <div class="pillar-text">
+          <h5>Workshops &amp; Competitions</h5>
+          <p>Hands-on learning through hackathons, pitch competitions, and skill-building sessions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EVENTS -->
+<section id="events">
+  <div class="events-head reveal">
+    <div>
+      <div class="section-tag">// Upcoming &amp; Past Events</div>
+      <h2 class="section-h2">Where Ideas Take Stage</h2>
+    </div>
+    <a href="#contact" class="btn-secondary" style="white-space:nowrap;">View All Events →</a>
+  </div>
+  <div class="events-grid">
+    <div class="event-card reveal">
+      <div class="event-thumb event-thumb-1">
+        <span class="event-badge">Upcoming</span>
+        <span class="event-thumb-icon">🎤</span>
+      </div>
+      <div class="event-body">
+        <div class="event-date">Jun 15, 2026 · Campus Auditorium</div>
+        <h3 class="event-title">FEDTalks: Founders Edition</h3>
+        <p class="event-desc">An intimate speaker series where 5 successful founders share their unfiltered journeys — from failure to funding.</p>
+        <a href="#" class="event-link">Register Now →</a>
+      </div>
+    </div>
+    <div class="event-card reveal">
+      <div class="event-thumb event-thumb-2">
+        <span class="event-badge">Open</span>
+        <span class="event-thumb-icon">⚡</span>
+      </div>
+      <div class="event-body">
+        <div class="event-date">Jul 4–6, 2026 · Innovation Hub</div>
+        <h3 class="event-title">48-Hour Startup Sprint</h3>
+        <p class="event-desc">Build, pitch, and win. Teams of 3–5 compete to solve real-world problems with live mentor support and ₹50k prize pool.</p>
+        <a href="#" class="event-link">Join the Sprint →</a>
+      </div>
+    </div>
+    <div class="event-card reveal">
+      <div class="event-thumb event-thumb-3">
+        <span class="event-badge" style="background:#E8533A;color:#fff;">Flagship</span>
+        <span class="event-thumb-icon">🌱</span>
+      </div>
+      <div class="event-body">
+        <div class="event-date">Aug 20, 2026 · KIIT Campus</div>
+        <h3 class="event-title">VentureWeek 2026</h3>
+        <p class="event-desc">FED's annual mega-event featuring investor pitch battles, startup expos, and networking with 50+ industry leaders.</p>
+        <a href="#" class="event-link">Learn More →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROGRAMS -->
+<section id="programs">
+  <div class="programs-head reveal">
+    <div class="section-tag">// What We Offer</div>
+    <h2 class="section-h2">Programs Built to Launch You</h2>
+    <p class="section-sub">Whether you have an idea or a growing startup, FED has a program tailored to your stage.</p>
+  </div>
+  <div class="programs-grid">
+    <div class="program-card reveal">
+      <span class="program-icon">🔬</span>
+      <h3>Ideation Lab</h3>
+      <p>A structured 4-week bootcamp to validate your startup idea with real user research and market analysis.</p>
+    </div>
+    <div class="program-card reveal">
+      <span class="program-icon">📈</span>
+      <h3>Scale-Up Track</h3>
+      <p>For early-stage startups ready to grow — access mentors, investors, and a 3-month acceleration program.</p>
+    </div>
+    <div class="program-card reveal">
+      <span class="program-icon">🎓</span>
+      <h3>Skill Workshops</h3>
+      <p>Weekly hands-on sessions on product design, growth marketing, financial modeling, and pitching.</p>
+    </div>
+    <div class="program-card reveal">
+      <span class="program-icon">🤖</span>
+      <h3>Tech for Good</h3>
+      <p>A specialized program for startups solving social or environmental challenges using emerging tech.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="testimonials-head reveal">
+    <div class="section-tag">// Voices from Our Community</div>
+    <h2 class="section-h2">Stories That Inspire</h2>
+    <p class="section-sub">Hear from members who turned their FED experience into something extraordinary.</p>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial-card reveal">
+      <div class="quote-mark">"</div>
+      <p class="testimonial-text">FED didn't just give me skills — it gave me the confidence to quit my placement offer and build my own company. Today we've onboarded 3,000 users.</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">AR</div>
+        <div><div class="author-name">Aarav Rai</div><div class="author-role">Founder, NestKit · FED Batch 2024</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal">
+      <div class="quote-mark">"</div>
+      <p class="testimonial-text">The mentor network at FED is unreal. I got an intro to my lead investor through a FED event. That single connection changed everything for us.</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">SM</div>
+        <div><div class="author-name">Shreya Mehta</div><div class="author-role">Co-founder, GreenLoop · FED Alumni</div></div>
+      </div>
+    </div>
+    <div class="testimonial-card reveal">
+      <div class="quote-mark">"</div>
+      <p class="testimonial-text">From zero to winning the national startup competition in 6 months — FED's Ideation Lab was the structured push I didn't know I needed.</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">KP</div>
+        <div><div class="author-name">Kartik Pandey</div><div class="author-role">CEO, HealthSetu · FED Batch 2025</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-wrap">
+    <div class="contact-info reveal">
+      <div class="section-tag">// Get In Touch</div>
+      <h2 class="section-h2">Let's Build Something Great Together</h2>
+      <p class="section-sub">Have a question, want to partner, or ready to join? We'd love to hear from you.</p>
+      <div class="contact-channels">
+        <div class="channel">
+          <span class="channel-icon">✉️</span>
+          <div><div class="channel-label">Email</div><div class="channel-value">hello@fedkiit.in</div></div>
+        </div>
+        <div class="channel">
+          <span class="channel-icon">📍</span>
+          <div><div class="channel-label">Location</div><div class="channel-value">KIIT University, Bhubaneswar, Odisha</div></div>
+        </div>
+        <div class="channel">
+          <span class="channel-icon">📱</span>
+          <div><div class="channel-label">Instagram / LinkedIn</div><div class="channel-value">@FedKIIT</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="contact-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" placeholder="Aarav">
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" placeholder="Rai">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label>I'm interested in</label>
+          <select>
+            <option>Joining FED as a Member</option>
+            <option>Partnership / Sponsorship</option>
+            <option>Mentorship Opportunities</option>
+            <option>Media / Press Inquiry</option>
+            <option>General Query</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea placeholder="Tell us about yourself or your query…"></textarea>
+        </div>
+        <button class="btn-submit" id="submitBtn">Send Message →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a class="nav-logo" href="#" style="display:inline-flex;margin-bottom:0.2rem;">
+        <div class="nav-logo-mark">FED</div>
+        <div>
+          <span class="nav-logo-text">FED</span>
+          <span class="nav-logo-sub">Entrepreneurship Development</span>
+        </div>
+      </a>
+      <p>Empowering the next generation of entrepreneurs through mentorship, community, and access to opportunity.</p>
+      <div class="social-links">
+        <a class="social-link" href="#" aria-label="Instagram">📸</a>
+        <a class="social-link" href="#" aria-label="LinkedIn">💼</a>
+        <a class="social-link" href="#" aria-label="Twitter">🐦</a>
+        <a class="social-link" href="#" aria-label="YouTube">▶️</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h5>Navigate</h5>
+      <ul>
+        <li><a href="#about">About FED</a></li>
+        <li><a href="#events">Events</a></li>
+        <li><a href="#programs">Programs</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Programs</h5>
+      <ul>
+        <li><a href="#">Ideation Lab</a></li>
+        <li><a href="#">Scale-Up Track</a></li>
+        <li><a href="#">Skill Workshops</a></li>
+        <li><a href="#">Tech for Good</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Community</h5>
+      <ul>
+        <li><a href="#">Become a Member</a></li>
+        <li><a href="#">Mentor with FED</a></li>
+        <li><a href="#">Partner with Us</a></li>
+        <li><a href="#">FED Alumni</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 FED — Federation of Entrepreneurship Development. All rights reserved.</p>
+    <p style="color:var(--gold);font-family:var(--font-mono);font-size:0.72rem;letter-spacing:0.08em;">DESIGN · BUILD · IMPRESS</p>
+  </div>
+</footer>
+
+<script>
+  // ── Dark / Light Mode Toggle ──
+  const html = document.documentElement;
+  const toggleBtn = document.getElementById('themeToggle');
+  toggleBtn.addEventListener('click', () => {
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    toggleBtn.textContent = isDark ? '🌙' : '☀️';
+  });
+
+  // ── Hamburger menu ──
+  const hamburger = document.getElementById('hamburger');
+  const navLinks  = document.getElementById('navLinks');
+  hamburger.addEventListener('click', () => navLinks.classList.toggle('open'));
+  navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
+
+  // ── Scroll reveal ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ── Navbar scroll effect ──
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('navbar');
+    nav.style.backdropFilter = window.scrollY > 50 ? 'blur(20px)' : 'blur(16px)';
+  });
+
+  // ── Contact form submit ──
+  document.getElementById('submitBtn').addEventListener('click', function() {
+    this.textContent = "Sent! We'll be in touch ✓";
+    this.style.background = '#3a8a5f';
+    this.style.cursor = 'default';
+  });
+</script>
+</body>
+</html>
